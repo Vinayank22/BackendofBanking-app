@@ -36,12 +36,18 @@ app.get('/',(req,res)=>{
     res.send("helloworld nodemon");
 })
 app.post('/register',(req,res)=>{
-     const result=dataservice.register(req.body.name,req.body.acno,req.body.pin,req.body.pwd)
-     res.status(result.statusCode).json(result);
+     dataservice.register(req.body.name,req.body.acno,req.body.pin,req.body.pwd)
+     .then(result=>{
+
+        res.status(result.statusCode).json(result);
+     })
+     
 })
 app.post('/login',(req,res)=>{
-    const result=dataservice.login(req,req.body.acno1,req.body.pwd)
+    dataservice.login(req,req.body.acno1,req.body.pwd)
+    .then(result=>{
    res.status(result.statusCode).json(result);
+    })
 })
 app.post('/deposit', authMiddlewear,(req,res)=>{
     //console.log(req.session.currentUser)

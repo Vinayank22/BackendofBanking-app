@@ -1,3 +1,5 @@
+const db= require('./db')
+
 accountDetails = {
 
   1001: { name: "user1", acno: 1001, pin: 4387, password: "userone", balance: 3000, transactions: [] },
@@ -9,6 +11,38 @@ accountDetails = {
 }
 let currentUser
 const register = (name, acno, pin, pwd) => {
+  return db.User.findOne({
+    acno
+  })
+  .then(user=>{
+    if(user){
+     
+      return {
+        result: false,
+        statusCode: 422,
+        message: "Account already exists"
+      }
+
+    }
+
+    const newUser=new db.User({
+     
+      name,
+      acno,
+      pin,
+      password: pwd,
+      balance: 0,
+      transactions: []
+
+    });
+    newUser.save()
+    return {
+      result: true,
+      statusCode: 200,
+      message: "Account created Please login"
+    }
+
+  })
   if (acno in accountDetails) {
 
     return {
@@ -37,31 +71,52 @@ const login = (req, acno1, pwd) => {
   //console.log(abc.value);
   //console.log(defg.value)// Template Referencing
   var acno = parseInt(acno1);
-
-  var data = accountDetails;
-  //console.log(acno in data);
-  req.session.currentUser = data[acno];
-  console.log(req.session.currentUser)
-  if (acno in data) {
-    let pd = data[acno].password
-    //console.log(pd);
-    if (pd == pwd) {
-      //this.currentUser = data[acno];
-      //this.setDetails();
+  return db.User.findOne({
+    acno,
+    password
+  })
+  .then(user=>{
+    if(user){
+      req.ses.currentUser=user;
       return {
         status: true,
         statusCode: 200,
         message: "Login Success"
       }
-
     }
-  }
-  return {
-    status: false,
-    statusCode: 422,
-    message: "Invalid credentials"
-  }
+    return {
+      status: false,
+      statusCode: 422,
+      message: "Invalid credentials"
+    }
+  })
 }
+
+
+  // var data = accountDetails;
+  //console.log(acno in data);
+  // req.session.currentUser = data[acno];
+  // console.log(req.session.currentUser)
+  // if (acno in data) {
+    // let pd = data[acno].password
+    //console.log(pd);
+    // if (pd == pwd) {
+      //this.currentUser = data[acno];
+      //this.setDetails();
+      // return {
+        // status: true,
+        // statusCode: 200,
+        // message: "Login Success"
+      // }
+
+    // }
+  // }
+  // return {
+    // status: false,
+    // statusCode: 422,
+    // message: "Invalid credentials"
+  // }
+
 
 
 const deposit = (acno1, pp, amt) => {
