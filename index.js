@@ -51,23 +51,30 @@ app.post('/login',(req,res)=>{
 })
 app.post('/deposit', authMiddlewear,(req,res)=>{
     //console.log(req.session.currentUser)
-    const result=dataservice.deposit(req.body.acno,req.body.pin,req.body.amt)
+    dataservice.deposit(req.body.acno,req.body.pin,req.body.amt)
+    .then(result=>{
    res.status(result.statusCode).json(result);
-
+    })
 })
 app.post('/withdraw', authMiddlewear,(req,res)=>{
-    const result=dataservice.withdraw(req.body.acno,req.body.pin,req.body.amt)
-   res.status(result.statusCode).json(result);
+    dataservice.withdraw(req.body.acno,req.body.pin,req.body.amt)
+    .then(result=>{
+     res.status(result.statusCode).json(result);
+    })
 
 })
 app.get('/transactionHistory', authMiddlewear,(req,res)=>{
-const result=dataservice.getTransactionDetails(req)
+dataservice.getTransactionDetails(req)
+.then(result=>{
 res.status(200).json(result);
+})
 })
 app.delete('/transactionHistory/:id', authMiddlewear,(req,res)=>{
     //console.log(req.params.id)
-    const result=dataservice.deleteTansaction(req,req.params.id)
+    dataservice.deleteTansaction(req,req.params.id)
+    .then(result=>{
      res.status(200).json(result);
+    })
 })
 
 

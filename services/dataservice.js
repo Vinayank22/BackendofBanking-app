@@ -1,4 +1,4 @@
-const db= require('./db')
+const db = require('./db')
 
 accountDetails = {
 
@@ -10,39 +10,40 @@ accountDetails = {
 
 }
 let currentUser
+
 const register = (name, acno, pin, pwd) => {
   return db.User.findOne({
     acno
   })
-  .then(user=>{
-    if(user){
-     
-      return {
-        result: false,
-        statusCode: 422,
-        message: "Account already exists"
+    .then(user => {
+      if (user) {
+
+        return {
+          result: false,
+          statusCode: 422,
+          message: "Account already exists"
+        }
+
       }
 
-    }
+      const newUser = new db.User({
 
-    const newUser=new db.User({
-     
-      name,
-      acno,
-      pin,
-      password: pwd,
-      balance: 0,
-      transactions: []
+        name,
+        acno,
+        pin,
+        password: pwd,
+        balance: 0,
+        transactions: []
 
-    });
-    newUser.save()
-    return {
-      result: true,
-      statusCode: 200,
-      message: "Account created Please login"
-    }
+      });
+      newUser.save()
+      return {
+        result: true,
+        statusCode: 200,
+        message: "Account created Please login"
+      }
 
-  })
+    })
   if (acno in accountDetails) {
 
     return {
@@ -73,188 +74,273 @@ const login = (req, acno1, pwd) => {
   var acno = parseInt(acno1);
   return db.User.findOne({
     acno,
-    password
+    password: pwd
   })
-  .then(user=>{
-    if(user){
-      req.ses.currentUser=user;
-      return {
-        status: true,
-        statusCode: 200,
-        message: "Login Success"
+    .then(user => {
+      if (user) {
+        req.session.currentUser = acno;
+        return {
+          status: true,
+          statusCode: 200,
+          message: "Login Success"
+        }
       }
-    }
-    return {
-      status: false,
-      statusCode: 422,
-      message: "Invalid credentials"
-    }
-  })
+      return {
+        status: false,
+        statusCode: 422,
+        message: "Invalid credentials"
+      }
+    })
 }
 
 
-  // var data = accountDetails;
-  //console.log(acno in data);
-  // req.session.currentUser = data[acno];
-  // console.log(req.session.currentUser)
-  // if (acno in data) {
-    // let pd = data[acno].password
-    //console.log(pd);
-    // if (pd == pwd) {
-      //this.currentUser = data[acno];
-      //this.setDetails();
-      // return {
-        // status: true,
-        // statusCode: 200,
-        // message: "Login Success"
-      // }
+// var data = accountDetails;
+//console.log(acno in data);
+//req.session.currentUser = data[acno];
+// console.log(req.session.currentUser)
+// if (acno in data) {
+// let pd = data[acno].password
+//console.log(pd);
+// if (pd == pwd) {
+//this.currentUser = data[acno];
+//this.setDetails();
+// return {
+// status: true,
+// statusCode: 200,
+// message: "Login Success"
+// }
 
-    // }
-  // }
-  // return {
-    // status: false,
-    // statusCode: 422,
-    // message: "Invalid credentials"
-  // }
+// }
+// }
+// return {
+// status: false,
+// statusCode: 422,
+// message: "Invalid credentials"
+// }
 
 
 
 const deposit = (acno1, pp, amt) => {
 
-  
+
   var acc = parseInt(acno1);
-  //var pp=this.dashboardForm.value.pin;
-  //var amt = parseInt(amd);
-  console.log(amt);
+  return db.User.findOne({
+    acno: acc,
+    pin: pp
+  })
+    .then(user => {
+      //req.session.currentUser = acno;
+      if (!user) {
+        return {
+          status: false,
+          statusCode: 422,
+          message: "Invalid credentials"
+        }
+      }
+      user.balance += parseInt(amt);
+      user.transactions.push({
 
-  var details = accountDetails
+        amount: amt,
+        typeOfTransactions: "Credit",
+        Accountnum: acc,
+        //id: Math.floor(Math.random() * 10000)
 
-  if (acc in details) {
-
-
-    //console.log(acc);
-    let mpin = details[acc].pin;
-    //console.log(mpin);
-    //var bal = details[acc].balance;
-    // console.log(bal);
-    //var bala = parseInt(bal);
-    // console.log(bala);
-    if (pp == mpin) {
-      details[acc].balance += parseInt(amt);
-      details[acc].transactions.push({
-
-        Amount: amt,
-        Type: "Credit",
-        Accountnum:acc,
-        id:Math.floor(Math.random()*10000)
-
-      })
-      //console.log(details[acc].transactions)
-
-
-
-      //console.log(res);
-      //this.setDetails();
-
+      });
+      user.save();
       return {
         status: true,
         statusCode: 200,
         message: "Amount has been credited",
-        Balance: details[acc].balance
+        Balance: user.balance
       }
-
-    }
-
-
-  }
-  else
-    return {
-      status: false,
-      statusCode: 422,
-      message: "Invalid credentials"
-
-    }
+    });
 }
+//////////////////////]}
+//var pp=this.dashboardForm.value.pin;
+//var amt = parseInt(amd);
+//console.log(amt);
+
+//ar details = accountDetails
+
+//if (acc in details) {
+
+
+//console.log(acc);
+//let mpin = details[acc].pin;
+//console.log(mpin);
+//var bal = details[acc].balance;
+// console.log(bal);
+//var bala = parseInt(bal);
+// console.log(bala);
+//if (pp == mpin) {
+//details[acc].balance += parseInt(amt);
+//details[acc].transactions.push({
+
+// Amount: amt,
+//Type: "Credit",
+//Accountnum:acc,
+//id:Math.floor(Math.random()*10000)
+
+//})
+//console.log(details[acc].transactions)
+
+
+
+//console.log(res);
+//this.setDetails();
+
+//return {
+//status: true,
+//statusCode: 200,
+//message: "Amount has been credited",
+//Balance: details[acc].balance
+//}
+
+//}
+
+
+//}
+//else
+//return {
+//status: false,
+//statusCode: 422,
+//message: "Invalid credentials"
+
+// }
+//}
 
 
 const withdraw = (acno1, pi, amt) => {
   var acnt = parseInt(acno1);
   //var pi=this.dashboardForm.value.pin;
   var amd = parseInt(amt)
-
-  let db = accountDetails;
-
-  if (acnt in db) {
-    //console.log(acnt);
-
-    let wpin = db[acnt].pin;
-    if (db[acnt].balance < amd)
-      return {
-        status: false,
-        statusCode: 422,
-        message: "Insufficient Balance",
-        Balance: db[acnt].balance
-
+  return db.User.findOne({
+    acno: acnt,
+    pin: pi
+  })
+    .then(user => {
+      //req.session.currentUser = acno;
+      if (!user) {
+        return {
+          status: false,
+          statusCode: 422,
+          message: "Invalid credentials"
+        }
       }
+      if (user.balance < amd) {
+        return {
+          status: false,
+          statusCode: 422,
+          message: "Insufficient Balance",
+          Balance: user.balance
 
-    if (pi == wpin) {
-      db[acnt].balance -= amd;
-      db[acnt].transactions.push({
-        Amount: amd,
-        Type: "debit",
-        Accountnum:acnt,
-        id:Math.floor(Math.random()*10000)
-      })
-      //console.log(db[acnt].transactions)
-
-      //this.currentUser = db[acnt].balance;
-      //this.setDetails();
+        }
+      }
+      user.balance -= amd;
+      user.transactions.push({
+        amount: amd,
+        typeOfTransactions: "debit",
+        Accountnum: acnt,
+        //id: Math.floor(Math.random() * 10000)
+      });
+      user.save();
       return {
         status: true,
         statusCode: 200,
         message: "Amount has been debited",
-        Balance: db[acnt].balance
+        Balance: user.balance
       }
 
+    })
+}
+
+
+
+//let db = accountDetails;
+
+//if (acnt in db) {
+//console.log(acnt);
+
+//let wpin = db[acnt].pin;
+//if (db[acnt].balance < amd)
+//return {
+//status: false,
+//statusCode: 422,
+//m//essage: "Insufficient Balance",
+//B//alance: db[acnt].balance
+
+//}//
+
+// if (pi == wpin) {
+//db[acnt].balance -= amd;
+// db[acnt].transactions.push({
+//Amount: amd,
+//Type: "debit",
+//Accountnum: acnt,
+//d: Math.floor(Math.random() * 10000)
+//})
+//console.log(db[acnt].transactions)
+
+//this.currentUser = db[acnt].balance;
+//this.setDetails();
+//return {
+//status: true,
+//statusCode: 200,
+//message: "Amount has been debited",
+//Balance: db[acnt].balance
+//}
+
+//}
+//else {
+// r//eturn {
+//staus: false,
+//statusCode: 422,
+//m//essage: "insufficent  balance"
+
+//}
+//}
+//}
+//}
+const getTransactionDetails = (req) => {
+  return db.User.findOne({
+    acno: req.session.currentUser
+
+  })
+    .then(user => {
+        return {
+          status: true,
+          statusCode: 200,
+          transactions: user.transactions
+        }
+      });
+}
+
+const deleteTansaction = (req, id) => {
+  return db.User.findOne({
+    acno: req.session.currentUser
+
+  })
+  //let transactions = accountDetails[req.session.currentUser.acno].transactions;
+  .then(user => {
+  user.transactions = user.transactions.filter(t => {
+
+    if (t._id == id) {
+      return false;
     }
     else {
-      return {
-        staus: false,
-        statusCode: 422,
-        message: "insufficent  balance"
-
-      }
+      return true;
     }
+  })
+  user.save();
+  //accountDetails[req.session.currentUser.acno].transactions = transactions;
+  return {
+    staus: true,
+    statusCode: 200,
+    message: "Transaction history deleted"
+
   }
-}
-const getTransactionDetails = (req) => {
-  console.log(req.session.currentUser.acno)
-  return accountDetails[req.session.currentUser.acno].transactions;
 
-
-
-}
-const deleteTansaction=(req,id) =>{
-let transactions= accountDetails[req.session.currentUser.acno].transactions;
-transactions=transactions.filter(t=>{
-
-  if(t.id==id)
-  {
-    return false;
-  }
-  else
-  {
-    return true;
-  }
 })
-accountDetails[req.session.currentUser.acno].transactions=transactions;
-return {
-  staus: true,
-  statusCode: 200,
-  message: "Transaction history deleted"
-
-}
-
 }
 
 

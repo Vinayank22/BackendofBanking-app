@@ -3,7 +3,8 @@ const mongoose = require('mongoose')
 mongoose.connect('mongodb://localhost:27017/Bank_server',{
 
     useNewUrlParser:true,
-    UseUnifiedTopology:true
+    //UseUnifiedTopology:true
+    useUnifiedTopology: true
 
 })
 const User= mongoose.model('User',{
