@@ -82,7 +82,8 @@ const login = (req, acno1, pwd) => {
         return {
           status: true,
           statusCode: 200,
-          message: "Login Success"
+          message: "Login Success",
+          name:user.name
         }
       }
       return {
